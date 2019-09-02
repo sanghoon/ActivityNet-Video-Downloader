@@ -1,48 +1,52 @@
 import os
 import json
-from pprint import pprint
 import pafy
+import autoarg
 
-# specify download directory
-directory = '/path/to/your/directory/'
-videoCounter = 0
 
-# open json file
-with open('activity_net.v1-3.min.json') as data_file:    
-    data = json.load(data_file)
+def download_vids(json_path='activity_net.v1-3.min.json', download_dir='./downloaded/', trimmed_dir='./trimmed/'):
+    videoCounter = 0
 
-# take only video informations from database object
-videos = data['database']
+    # open json file
+    with open(json_path) as data_file:
+        data = json.load(data_file)
 
-# iterate through dictionary of videos
-for key in videos:
-	# take video
-	video = videos[key]
+    # take only video informations from database object
+    videos = data['database']
 
-	# find video subset
-	subset = video['subset']
+    # iterate through dictionary of videos
+    for key in videos:
+        # take video
+        video = videos[key]
 
-	# find video label
-	annotations = video['annotations']
-	label = ''
-	if len(annotations) != 0:
-		label = annotations[0]['label']
-		label = '/' + label.replace(' ', '_')
+        # find video subset
+        subset = video['subset']
 
-	# create folder named as <label> if does not exist
-	label_dir = directory + subset + label
-	if not os.path.exists(label_dir):
-		os.makedirs(label_dir)
+        # find video label
+        annotations = video['annotations']
+        label = ''
+        if len(annotations) != 0:
+            label = annotations[0]['label']
+            label = '/' + label.replace(' ', '_')
 
-	# take url of video
-	url = video['url']
+        # create folder named as <label> if does not exist
+        label_dir = download_dir + subset + label
+        if not os.path.exists(label_dir):
+            os.makedirs(label_dir)
 
-	# start to download
-	try:
-		video = pafy.new(url)
-		best = video.getbest(preftype="flv")
-		filename = best.download(filepath=label_dir + '/' + key)
-		print 'Downloading... ' + str(videoCounter) + '\n'
-		videoCounter += 1
-	except Exception as inst:
-		print 'Error!'
+        # take url of video
+        url = video['url']
+
+        # start to download
+        try:
+            video = pafy.new(url)
+            best = video.getbest(preftype="flv")
+            filename = best.download(filepath=label_dir + '/' + key)
+            print('Downloading... ' + str(videoCounter) + '\n')
+            videoCounter += 1
+        except Exception as inst:
+            print('Error!')
+
+
+if __name__ == '__main__':
+    autoarg.run(download_vids)
