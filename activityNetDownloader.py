@@ -4,8 +4,8 @@ import pafy
 import autoarg
 
 
-def download_vids(json_path='activity_net.v1-3.min.json', download_dir='./downloaded/', trimmed_dir='./trimmed/'):
-    videoCounter = 0
+def download_vids(json_path='activity_net.v1-3.min.json', download_base='./downloaded/', trimmed_base='./trimmed/'):
+    n_success = 0
 
     # open json file
     with open(json_path) as data_file:
@@ -13,26 +13,28 @@ def download_vids(json_path='activity_net.v1-3.min.json', download_dir='./downlo
 
     # take only video informations from database object
     videos = data['database']
+    n_videos = len(videos)
 
     # iterate through dictionary of videos
-    for key in videos:
-        # take video
-        video = videos[key]
+    for i, (key, video) in enumerate(videos.items()):
+        print_header = '[{:06d}/{:06d}] '.format(i, n_videos)
 
-        # find video subset
+        # find video subset (training, testing, validation)
         subset = video['subset']
 
         # find video label
         annotations = video['annotations']
-        label = ''
+        dft_label = ''
         if len(annotations) != 0:
-            label = annotations[0]['label']
-            label = '/' + label.replace(' ', '_')
+            dft_label = annotations[0]['label'].replace(' ', '_')
+        else:
+            print(print_header + 'Skip. (no annotations)')
+            continue
 
         # create folder named as <label> if does not exist
-        label_dir = download_dir + subset + label
-        if not os.path.exists(label_dir):
-            os.makedirs(label_dir)
+        download_dir = os.path.join(download_base, subset, dft_label)
+        if not os.path.exists(download_dir):
+            os.makedirs(download_dir)
 
         # take url of video
         url = video['url']
@@ -40,12 +42,14 @@ def download_vids(json_path='activity_net.v1-3.min.json', download_dir='./downlo
         # start to download
         try:
             video = pafy.new(url)
-            best = video.getbest(preftype="flv")
-            filename = best.download(filepath=label_dir + '/' + key)
-            print('Downloading... ' + str(videoCounter) + '\n')
-            videoCounter += 1
-        except Exception as inst:
-            print('Error!')
+            best = video.getbest(preftype="mp4")
+            filename = best.download(filepath=os.path.join(download_dir, '{}.mp4'.format(key)))
+            print(print_header + 'Success! {} => {}'.format(url, filename))
+            n_success += 1
+        except Exception as e:
+            print(print_header + 'Failed! {} : '.format(url, e))
+
+        # TODO: trim videos
 
 
 if __name__ == '__main__':
