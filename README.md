@@ -1,39 +1,35 @@
 # ActivityNet-Video-Downloader
 
-This simple script is for downloading videos of ActivityNet dataset by parsing URLs from given .json file. Therefore, it is required to download the related .json file [here](http://activity-net.org/download.html).
+A modified version of [ActivityNet-Video-Downloader](https://github.com/ozgyal/ActivityNet-Video-Downloader)
+
+## Major differences
+- Python 3.X support
+- Trim videos into labeled segments
+- Download videos in '.mp4' format
 
 ## Using activityNetDownloader
 
 1. Install the prerequisites.
-
-	- Python 2.7
-	
-	- Pafy:
-
-		``` bash
-	   sudo pip install pafy
-	   ```
-
-2. Clone the repository or download the zip to your working directory.
-
-	```bash
-   git clone https://github.com/ozgyal/ActivityNet-Video-Downloader.git
-   ```
-
-3. Define a path to download the videos. 
-	
-    ```python
-	directory = '/path/to/your/directory/'
-    ```
-
-4. Videos will be downloaded in ".flv" format. If you want to change this, you can modify the following line by considering [Pafy's website](https://pypi.python.org/pypi/pafy):
-
-	```python
-	best = video.getbest(preftype="flv")
+    ```bash
+    pip install -r requirements.txt
     ```
     
-5. Run the script.
-
+2. Download the ActivityNet annotation file
+   ```bash
+   wget http://ec2-52-11-11-89.us-west-2.compute.amazonaws.com/files/activity_net.v1-3.min.json
+   ```
+   - if this url doesn't work, please visit [the official ActivityNet website](http://activity-net.org/index.html)
+   
+3. Run the script.
 	``` bash
 	python activityNetDownloader.py
 	```
+
+  - if you use a different json file (not `activity_net.v1-3.min.json`), please specify its filename as an argument
+    ```bash
+    python activityNetDownloader.py ./another.file.name.json
+    ```
+
+4. All the videos will be downloaded into two directories
+   - `downloaded`: Full-length original videos
+   - `trimmed`: Trimmed videos (train & validation only) 

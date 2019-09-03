@@ -4,7 +4,7 @@ import subprocess
 
 import pafy
 import autoarg
-import ffmpeg
+
 
 def download_vids(json_path='activity_net.v1-3.min.json', download_base='./downloaded/', trimmed_base='./trimmed/'):
     n_downloaded = 0
